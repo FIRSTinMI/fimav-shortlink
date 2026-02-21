@@ -26,7 +26,7 @@ func FetchShortLinksFromSheet(config AppConfig) map[string]string {
 		return nil
 	}
 
-	slog.Info("fetched values", slog.Any("values", values.Values))
+	slog.Debug("fetched values", slog.Any("values", values.Values))
 
 	ret := make(map[string]string)
 	for _, link := range values.Values {
