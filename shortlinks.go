@@ -26,7 +26,7 @@ func FetchShortLinksFromSheet(config AppConfig) map[string]string {
 		return nil
 	}
 
-	slog.Debug("fetched values", slog.Any("values", values.Values))
+	slog.Info("fetched values", slog.Any("values", values.Values))
 
 	ret := make(map[string]string)
 	for _, link := range values.Values {
@@ -53,6 +53,8 @@ func GetShortLink(c *Cache[string, string], w http.ResponseWriter, r *http.Reque
 		http.Redirect(w, r, fmt.Sprintf(FallbackUrl, shortlink), http.StatusFound)
 		return
 	}
+
+	slog.Info("Redirecting to shortlink", slog.String("shortlink", shortlink), slog.String("destination", *destination))
 
 	http.Redirect(w, r, *destination, http.StatusFound)
 }
