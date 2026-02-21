@@ -1,0 +1,26 @@
+{{ template "layout.html" . }}
+
+{{ define "style" }}
+<style>
+    article { min-width: 200px; width: 100%; padding-top: 3em; display: flex; align-items: center; flex-direction: column; }
+    .container { width: 100%; }
+    h1 { text-align: center; }
+    .watch-button {background:#0066b3;color:white;text-decoration:none;padding:.5em .7em;margin:1em 0;border-radius:.5em;width:fit-content;display:block;}
+</style>
+{{ end }}
+
+{{ define "content" }}
+<div class="container">
+    <article>
+        {{ if .Streams }}
+        {{ $length := len .Streams }}
+        {{ if and (.Name) (gt $length 1) }}
+        <h1>{{ .Name }}</h1>
+        {{ end }}
+        {{ range $stream := .Streams }}
+        <a class="watch-button" href="{{ $stream.WatchUrl }}">{{ or $stream.Name $stream.WatchUrl }} ({{ $stream.Provider }})</a>
+        {{ end }}
+        {{ end }}
+    </article>
+</div>
+{{ end }}

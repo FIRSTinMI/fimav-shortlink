@@ -1,0 +1,12 @@
+<html lang="en">
+<style>
+    body {font-family: "Open Sans", sans-serif;}
+    h1 {font-size: 2em; font-weight: lighter;}
+    iframe {aspect-ratio: 16 / 9;width: 100%;height: unset;}
+    iframe:not(:last-child) {padding-bottom: 1em;}
+</style>
+{{ block "style" . }}{{ end }}
+<body>
+{{ block "content" . }}No page content found.{{ end }}
+</body>
+</html>

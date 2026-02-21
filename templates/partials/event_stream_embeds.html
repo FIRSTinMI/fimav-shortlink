@@ -1,0 +1,9 @@
+{{ define "event_stream_embeds" }}
+{{ if .Streams }}
+{{ $length := len .Streams }}
+{{ range $stream := .Streams }}
+{{/* <a href="{{ $stream.WatchUrl }}">Watch on {{ $stream.Provider }}</a> */}}
+{{ $stream.EmbedCode }}
+{{ end }}
+{{ end }}
+{{ end }}

@@ -1,0 +1,12 @@
+{{ template "layout.html" . }}
+{{ define "content" }}
+{{ range $event := . }}
+{{ if .Name }}
+<h1>{{ .Name }}</h1>
+{{ end }}
+{{ template "event_stream_embeds" $event  }}
+{{ end }}
+<script>
+    window.parent.postMessage(document.body.scrollHeight, "*");
+</script>
+{{ end }}
