@@ -47,7 +47,7 @@ func GetShortLink(c *Cache[string, string], w http.ResponseWriter, r *http.Reque
 	shortlink := r.PathValue("shortlink")
 	destination := c.Get("/" + strings.ToLower(shortlink))
 
-	if destination == nil {
+	if destination == nil || *destination == "" {
 		const FallbackUrl = "https://docs.fimav.us/%s"
 
 		http.Redirect(w, r, fmt.Sprintf(FallbackUrl, shortlink), http.StatusFound)
