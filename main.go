@@ -66,10 +66,16 @@ func main() {
 	mux.HandleFunc("/live/{year}/{eventCode}", func(w http.ResponseWriter, r *http.Request) {
 		GetLiveStreams(streamCache, w, r, templates)
 	})
+	mux.HandleFunc("/live/{eventCode}", func(w http.ResponseWriter, r *http.Request) {
+		GetLiveStreams(streamCache, w, r, templates)
+	})
 	mux.HandleFunc("/embed/current", func(w http.ResponseWriter, r *http.Request) {
 		GetCurrentLiveStreamEmbeds(currentStreamCache, w, templates)
 	})
 	mux.HandleFunc("/embed/{year}/{eventCode}", func(w http.ResponseWriter, r *http.Request) {
+		GetLiveStreamEmbeds(streamCache, w, r, templates)
+	})
+	mux.HandleFunc("/embed/{eventCode}", func(w http.ResponseWriter, r *http.Request) {
 		GetLiveStreamEmbeds(streamCache, w, r, templates)
 	})
 	mux.HandleFunc("/{shortlink...}", func(w http.ResponseWriter, r *http.Request) {
