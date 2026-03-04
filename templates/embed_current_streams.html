@@ -7,6 +7,6 @@
 {{ template "event_stream_embeds" $event  }}
 {{ end }}
 <script>
-    window.parent.postMessage(document.body.scrollHeight, "*");
+    window.parent.postMessage(document.body.scrollHeight + 10, "*");
 </script>
 {{ end }}
