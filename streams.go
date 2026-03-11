@@ -190,7 +190,12 @@ func GetLiveStreamEmbeds(c *Cache[StreamCacheKey, EventStreamInfo], w http.Respo
 	return
 }
 
-func GetCurrentLiveStreamEmbeds(c *Cache[int, []EventStreamInfo], w http.ResponseWriter, templates map[string]*template.Template) {
+type embedCurrentStreamsData struct {
+	Events      []EventStreamInfo
+	FeedbackUrl string
+}
+
+func GetCurrentLiveStreamEmbeds(c *Cache[int, []EventStreamInfo], config AppConfig, w http.ResponseWriter, templates map[string]*template.Template) {
 	events := c.Get(0)
 
 	if events == nil || len(*events) == 0 {
@@ -201,7 +206,10 @@ func GetCurrentLiveStreamEmbeds(c *Cache[int, []EventStreamInfo], w http.Respons
 		return
 	}
 
-	err := templates["templates/embed_current_streams.html"].Execute(w, events)
+	err := templates["templates/embed_current_streams.html"].Execute(w, embedCurrentStreamsData{
+		Events:      *events,
+		FeedbackUrl: config.FeedbackFormUrl,
+	})
 	if err != nil {
 		slog.Error("Failed to execute template for embed_current_streams.html", slog.Any("error", err))
 	}

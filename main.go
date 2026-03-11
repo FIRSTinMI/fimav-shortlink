@@ -20,6 +20,7 @@ type AppConfig struct {
 	SupaApiKey      string `env:"SUPA_API_KEY, required"`
 	SheetsDocId     string `env:"SHEETS_DOC_ID, required"`
 	SheetsSheetName string `env:"SHEETS_SHEET_NAME, required"`
+	FeedbackFormUrl string `env:"FEEDBACK_FORM_URL"`
 }
 
 func main() {
@@ -70,7 +71,7 @@ func main() {
 		GetLiveStreams(streamCache, w, r, templates)
 	})
 	mux.HandleFunc("/embed/current", func(w http.ResponseWriter, r *http.Request) {
-		GetCurrentLiveStreamEmbeds(currentStreamCache, w, templates)
+		GetCurrentLiveStreamEmbeds(currentStreamCache, config, w, templates)
 	})
 	mux.HandleFunc("/embed/{year}/{eventCode}", func(w http.ResponseWriter, r *http.Request) {
 		GetLiveStreamEmbeds(streamCache, w, r, templates)
