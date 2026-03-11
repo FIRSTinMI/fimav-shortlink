@@ -8,7 +8,7 @@
 {{ end }}
 
 {{ if .FeedbackUrl -}}
-<a href="{{ .FeedbackUrl }}">Report a problem</a>
+<a href="{{ .FeedbackUrl }}" target="_blank">Report a problem</a>
 {{- end }}
 <script>
     window.parent.postMessage(document.body.scrollHeight + 10, "*");
