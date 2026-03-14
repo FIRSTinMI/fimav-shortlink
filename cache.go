@@ -45,10 +45,12 @@ func (c *Cache[K, V]) Get(key K) *V {
 		return &value.data
 	} else {
 		var zero V
+		c.rwMutex.Lock()
 		c.data[key] = cacheEntry[V]{
 			data:        zero,
 			dataExpires: time.Now().Add(c.ttl),
 		}
+		c.rwMutex.Unlock()
 	}
 
 	return nil

@@ -44,12 +44,12 @@ type supaCurrentStreams struct {
 func FetchLiveStreamsFromDb(config AppConfig, year *int64, onlyCurrent bool) map[StreamCacheKey]EventStreamInfo {
 	slog.Info("Fetching Livestreams from DB", slog.Any("year", year))
 	client := http.Client{}
-	url := config.SupaBaseUrl + "/rest/v1/event_current_stream"
+	url := config.SupaBaseUrl + "/rest/v1/event_current_stream?order=name"
 	if onlyCurrent {
-		url += "?is_current=eq." + strconv.FormatBool(onlyCurrent)
+		url += "&is_current=eq." + strconv.FormatBool(onlyCurrent)
 	}
 	if year != nil {
-		url += "?year=eq." + strconv.FormatInt(*year, 10)
+		url += "&year=eq." + strconv.FormatInt(*year, 10)
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
