@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/sethvargo/go-envconfig"
@@ -45,6 +46,9 @@ func main() {
 		streams := FetchLiveStreamsFromDb(config, nil, true)
 		ret := make(map[int][]EventStreamInfo)
 		ret[0] = slices.Collect(maps.Values(streams))
+		slices.SortFunc(ret[0], func(a EventStreamInfo, b EventStreamInfo) int {
+			return strings.Compare(a.Name, b.Name)
+		})
 
 		return ret
 	})
