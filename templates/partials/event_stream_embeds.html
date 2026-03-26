@@ -2,6 +2,9 @@
 {{ if .Streams }}
 {{ $length := len .Streams }}
 {{ range $stream := .Streams }}
+{{ if $stream.ShortTitle }}
+<h3>{{ $stream.ShortTitle }}</h3>
+{{ end }}
 {{/* <a href="{{ $stream.WatchUrl }}">Watch on {{ $stream.Provider }}</a> */}}
 {{ $stream.EmbedCode }}
 {{ end }}

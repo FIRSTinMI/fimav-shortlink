@@ -23,10 +23,11 @@ type EventStreamInfo struct {
 }
 
 type CurrentLiveStream struct {
-	Name      string
-	Provider  string
-	WatchUrl  string
-	EmbedCode template.HTML
+	Title      string
+	ShortTitle string
+	Provider   string
+	WatchUrl   string
+	EmbedCode  template.HTML
 }
 
 type supaCurrentStreams struct {
@@ -34,10 +35,11 @@ type supaCurrentStreams struct {
 	Code    string `json:"code"`
 	Name    string `json:"name"`
 	Streams []struct {
-		WatchUrl  string `json:"watch_url"`
-		EmbedCode string `json:"embed_code"`
-		Platform  string `json:"platform"`
-		Title     string `json:"title"`
+		WatchUrl   string `json:"watch_url"`
+		EmbedCode  string `json:"embed_code"`
+		Platform   string `json:"platform"`
+		Title      string `json:"title"`
+		ShortTitle string `json:"short_title"`
 	} `json:"url"`
 }
 
@@ -83,10 +85,11 @@ func FetchLiveStreamsFromDb(config AppConfig, year *int64, onlyCurrent bool) map
 		streams := make([]CurrentLiveStream, len(s.Streams))
 		for sIdx, stream := range s.Streams {
 			streams[sIdx] = CurrentLiveStream{
-				Name:      stream.Title,
-				Provider:  stream.Platform,
-				WatchUrl:  stream.WatchUrl,
-				EmbedCode: template.HTML(stream.EmbedCode),
+				Title:      stream.Title,
+				ShortTitle: stream.ShortTitle,
+				Provider:   stream.Platform,
+				WatchUrl:   stream.WatchUrl,
+				EmbedCode:  template.HTML(stream.EmbedCode),
 			}
 		}
 		ret[StreamCacheKey{
@@ -160,6 +163,12 @@ func fallbackToHq(w http.ResponseWriter, r *http.Request, year int64, eventCode 
 
 func GetLiveStreamEmbeds(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWriter, r *http.Request, templates map[string]*template.Template) {
 	year, eventCode := getYearAndEventCode(r)
+	autoplayStr := r.URL.Query().Get("autoplay")
+	autoplay, err := strconv.ParseBool(autoplayStr)
+	if err != nil {
+		autoplay = false
+	}
+
 	streamInfo := c.Get(StreamCacheKey{
 		EventCode: strings.ToLower(eventCode),
 		Year:      year,
@@ -175,6 +184,15 @@ func GetLiveStreamEmbeds(c *Cache[StreamCacheKey, EventStreamInfo], w http.Respo
 
 	streams := streamInfo.Streams
 
+	if autoplay {
+		for _, stream := range streams {
+			switch strings.ToLower(stream.Provider) {
+			case "youtube":
+				stream.EmbedCode = stream.EmbedCode
+			}
+		}
+	}
+
 	if streams == nil || len(streams) == 0 {
 		err := templates["templates/embed_no_streams.html"].Execute(w, streamInfo)
 		if err != nil {
@@ -183,7 +201,7 @@ func GetLiveStreamEmbeds(c *Cache[StreamCacheKey, EventStreamInfo], w http.Respo
 		return
 	}
 
-	err := templates["templates/embed_streams.html"].Execute(w, streamInfo)
+	err = templates["templates/embed_streams.html"].Execute(w, streamInfo)
 	if err != nil {
 		slog.Error("Failed to execute template for embed_streams.html", slog.Any("error", err))
 	}
