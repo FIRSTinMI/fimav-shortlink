@@ -18,7 +18,7 @@
         <h1>{{ .Name }}</h1>
         {{ end }}
         {{ range $stream := .Streams }}
-        <a class="watch-button" href="{{ $stream.WatchUrl }}">{{ or $stream.Name $stream.WatchUrl }} ({{ $stream.Provider }})</a>
+        <a class="watch-button" href="{{ $stream.WatchUrl }}">{{ or $stream.Title $stream.WatchUrl }} ({{ $stream.Provider }})</a>
         {{ end }}
         {{ end }}
     </article>
