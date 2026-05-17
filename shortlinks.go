@@ -6,13 +6,23 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
 
+var lastFetch time.Time
+
 func FetchShortLinksFromSheet(config AppConfig) map[string]string {
+	// Guard against calling the API too often. The cache will keep using old values
+	if lastFetch.After(time.Now().Add(-5 * time.Second)) {
+		slog.Warn("Not getting shortlinks, in cooldown")
+		return nil
+	}
+	lastFetch = time.Now()
+
 	ctx := context.Background()
 	sheetsService, err := sheets.NewService(ctx, option.WithScopes(sheets.SpreadsheetsScope, compute.DevstorageReadOnlyScope))
 	if err != nil {
@@ -44,8 +54,13 @@ func FetchShortLinksFromSheet(config AppConfig) map[string]string {
 }
 
 func GetShortLink(c *Cache[string, string], w http.ResponseWriter, r *http.Request) {
-	shortlink := r.PathValue("shortlink")
-	destination := c.Get("/" + strings.ToLower(shortlink))
+	shortlink := strings.ToLower(r.PathValue("shortlink"))
+
+	if strings.HasSuffix(shortlink, ".php") {
+		http.Error(w, "Forbidden Shortlink", http.StatusForbidden)
+	}
+
+	destination := c.Get("/" + shortlink)
 
 	if destination == nil || *destination == "" {
 		const FallbackUrl = "https://docs.fimav.us/%s"

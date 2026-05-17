@@ -39,10 +39,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	streamCache := NewCache[StreamCacheKey, EventStreamInfo](3*time.Minute, func(requestedKey StreamCacheKey) map[StreamCacheKey]EventStreamInfo {
+	streamCache := NewCache(3*time.Minute, func(requestedKey StreamCacheKey) map[StreamCacheKey]EventStreamInfo {
 		return FetchLiveStreamsFromDb(config, &requestedKey.Year, false)
 	})
-	currentStreamCache := NewCache[int, []EventStreamInfo](3*time.Minute, func(_ int) map[int][]EventStreamInfo {
+	currentStreamCache := NewCache(3*time.Minute, func(_ int) map[int][]EventStreamInfo {
 		streams := FetchLiveStreamsFromDb(config, nil, true)
 		ret := make(map[int][]EventStreamInfo)
 		ret[0] = slices.Collect(maps.Values(streams))
@@ -52,7 +52,7 @@ func main() {
 
 		return ret
 	})
-	shortlinkCache := NewCache[string, string](3*time.Minute, func(_ string) map[string]string {
+	shortlinkCache := NewCache(3*time.Minute, func(_ string) map[string]string {
 		return FetchShortLinksFromSheet(config)
 	})
 
