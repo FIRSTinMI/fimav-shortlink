@@ -56,8 +56,9 @@ func FetchShortLinksFromSheet(config AppConfig) map[string]string {
 func GetShortLink(c *Cache[string, string], w http.ResponseWriter, r *http.Request) {
 	shortlink := strings.ToLower(r.PathValue("shortlink"))
 
-	if strings.HasSuffix(shortlink, ".php") {
-		http.Error(w, "Forbidden Shortlink", http.StatusForbidden)
+	if isForbiddenShortlink(shortlink) {
+		http.Error(w, "Forbidden Shortlink. Are you an unwanted vulnerability scanner, or just poking around a little too much?", http.StatusForbidden)
+		return
 	}
 
 	destination := c.Get("/" + shortlink)
@@ -72,4 +73,16 @@ func GetShortLink(c *Cache[string, string], w http.ResponseWriter, r *http.Reque
 	slog.Info("Redirecting to shortlink", slog.String("shortlink", shortlink), slog.String("destination", *destination))
 
 	http.Redirect(w, r, *destination, http.StatusFound)
+}
+
+func isForbiddenShortlink(shortlink string) bool {
+	if strings.HasSuffix(shortlink, ".php") {
+		return true
+	}
+
+	if strings.Contains(shortlink, "wp-includes") {
+		return true
+	}
+
+	return false
 }
