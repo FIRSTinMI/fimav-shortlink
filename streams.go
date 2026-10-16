@@ -18,8 +18,9 @@ type StreamCacheKey struct {
 }
 
 type EventStreamInfo struct {
-	Name    string
-	Streams []CurrentLiveStream
+	Name         string
+	EventInfoUrl string
+	Streams      []CurrentLiveStream
 }
 
 type CurrentLiveStream struct {
@@ -31,9 +32,10 @@ type CurrentLiveStream struct {
 }
 
 type supaCurrentStreams struct {
-	Year    int64  `json:"year"`
-	Code    string `json:"code"`
-	Name    string `json:"name"`
+	Year         int64  `json:"year"`
+	Code         string `json:"code"`
+	Name         string `json:"name"`
+	EventInfoUrl string `json:"event_info_url"`
 	Streams []struct {
 		WatchUrl   string `json:"watch_url"`
 		EmbedCode  string `json:"embed_code"`
@@ -127,13 +129,16 @@ func GetLiveStreams(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWr
 	})
 
 	if streamInfo == nil {
-		fallbackToHq(w, r, year, eventCode)
+		err := templates["templates/embed_no_streams.html"].Execute(w, streamInfo)
+		if err != nil {
+			slog.Error("Failed to execute template for embed_no_streams.html", slog.Any("error", err))
+		}
 		return
 	}
 
 	streams := streamInfo.Streams
 	if streams == nil || len(streams) == 0 {
-		fallbackToHq(w, r, year, eventCode)
+		fallbackToHq(w, r, streamInfo)
 		return
 	}
 
@@ -157,8 +162,11 @@ func GetLiveStreams(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWr
 	return
 }
 
-func fallbackToHq(w http.ResponseWriter, r *http.Request, year int64, eventCode string) {
-	// TODO: This needs to properly support FTC
+func fallbackToHq(w http.ResponseWriter, r *http.Request, streamInfo EventStreamInfo) {
+	if streamInfo != nil && streamInfo.EventInfoUrl != nil {
+		http.Redirect(w, r, streamInfo.EventInfoUrl, http.StatusFound)
+	}
+
 	const FallbackUrl = "https://frc-events.firstinspires.org/%d/%s"
 
 	http.Redirect(w, r, fmt.Sprintf(FallbackUrl, year, eventCode), http.StatusFound)
