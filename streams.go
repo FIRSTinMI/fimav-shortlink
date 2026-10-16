@@ -101,8 +101,9 @@ func FetchLiveStreamsFromDb(config AppConfig, year *int64, onlyCurrent bool) map
 			EventCode: strings.ToLower(s.Code),
 			Year:      s.Year,
 		}] = EventStreamInfo{
-			Name:    s.Name,
-			Streams: streams,
+			Name:         s.Name,
+			EventInfoUrl: s.EventInfoUrl,
+			Streams:      streams,
 		}
 	}
 
@@ -138,14 +139,6 @@ func GetLiveStreams(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWr
 	streams := streamInfo.Streams
 	if streams == nil || len(streams) == 0 {
 		fallbackToHq(w, r, streamInfo, templates)
-		return
-	}
-
-	if len(streams) == 0 {
-		err := templates["templates/embed_no_streams.html"].Execute(w, streamInfo)
-		if err != nil {
-			slog.Error("Failed to execute template for embed_no_streams.html", slog.Any("error", err))
-		}
 		return
 	}
 
