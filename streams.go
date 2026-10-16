@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
@@ -138,7 +137,7 @@ func GetLiveStreams(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWr
 
 	streams := streamInfo.Streams
 	if streams == nil || len(streams) == 0 {
-		fallbackToHq(w, r, streamInfo)
+		fallbackToHq(w, r, streamInfo, templates)
 		return
 	}
 
@@ -162,8 +161,8 @@ func GetLiveStreams(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWr
 	return
 }
 
-func fallbackToHq(w http.ResponseWriter, r *http.Request, streamInfo *EventStreamInfo) {
-	if streamInfo != nil && streamInfo.EventInfoUrl != nil {
+func fallbackToHq(w http.ResponseWriter, r *http.Request, streamInfo *EventStreamInfo, templates map[string]*template.Template) {
+	if streamInfo != nil && streamInfo.EventInfoUrl != "" {
 		http.Redirect(w, r, streamInfo.EventInfoUrl, http.StatusFound)
 	}
 
