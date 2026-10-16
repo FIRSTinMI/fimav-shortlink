@@ -162,14 +162,15 @@ func GetLiveStreams(c *Cache[StreamCacheKey, EventStreamInfo], w http.ResponseWr
 	return
 }
 
-func fallbackToHq(w http.ResponseWriter, r *http.Request, streamInfo EventStreamInfo) {
+func fallbackToHq(w http.ResponseWriter, r *http.Request, streamInfo *EventStreamInfo) {
 	if streamInfo != nil && streamInfo.EventInfoUrl != nil {
 		http.Redirect(w, r, streamInfo.EventInfoUrl, http.StatusFound)
 	}
 
-	const FallbackUrl = "https://frc-events.firstinspires.org/%d/%s"
-
-	http.Redirect(w, r, fmt.Sprintf(FallbackUrl, year, eventCode), http.StatusFound)
+	err := templates["templates/embed_no_streams.html"].Execute(w, streamInfo)
+	if err != nil {
+		slog.Error("Failed to execute template for embed_no_streams.html", slog.Any("error", err))
+	}
 	return
 }
 
