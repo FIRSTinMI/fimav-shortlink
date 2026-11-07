@@ -1,10 +1,12 @@
 {{ template "layout.html" . }}
 {{ define "content" }}
 {{ range $event := .Events }}
+{{ if .Streams }}
 {{ if .Name }}
 <h1>{{ .Name }}</h1>
 {{ end }}
 {{ template "event_stream_embeds" $event  }}
+{{ end }}
 {{ end }}
 
 {{ if .FeedbackUrl -}}
